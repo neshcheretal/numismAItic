@@ -1,0 +1,267 @@
+---
+validate_auction:
+  description: |
+    Analyze the provided auction lot URL: {url}
+    Your task is to identify which auction platform this URL belongs to.
+
+    Steps:
+    - Inspect the URL structure and domain
+    - Determine the most likely auction platform hosting the lot
+    - Use web_search only if the platform cannot be confidently identified from the URL itself
+
+    Important rules:
+    - Do not parse the lot page
+    - Do not analyze the coin
+    - Do not estimate value
+    - Focus only on identifying the auction platform
+
+    The result will be used to select the correct parser tool in the next step.
+  expected_output: |
+    A structured result containing:
+    - input_url
+    - detected_platform (e.g. Violity, Heritage, Numisbids, eBay, Unknown)
+    - domain
+    - confidence (high / medium / low)
+    - short_reason
+
+
+
+
+retrieve_coins_lot:
+  description: |
+    Retrieve and parse the auction lot page from: {url}
+
+    Context from the previous task already identified the auction platform.
+
+    Steps:
+    1. Fetch the HTML of the lot page using fetch_lot_page.
+    2. Check which auction platform was detected in the previous task.
+    3. If the platform is Violity, use parse_violity_lot to extract the lot data.
+    4. If the platform is not supported by available parsers, return the raw page metadata and indicate that the platform is unsupported.
+
+    Important rules:
+    - Do not attempt coin appraisal or pricing.
+    - Focus only on extracting factual lot data.
+    - Do not invent missing fields.
+    - If a field cannot be extracted, return it as null or unknown.
+    - Prefer structured data over narrative text.
+
+    The goal is to produce a clean structured representation of the auction lot.
+  expected_output: |
+    Structured lot data containing fields such as:
+
+    - url
+    - auction_platform
+    - lot_id
+    - title
+    - seller
+    - status
+    - current_price
+    - buy_now_price
+    - final_price (if available)
+    - metal
+    - condition
+    - description
+    - location
+    - image_urls
+
+    If parsing is not supported for the detected platform, return:
+    - url
+    - auction_platform
+    - parsing_status = unsupported
+
+
+
+estimation_task:
+  description: |
+    Assess the coin's condition and authenticity risk using the retrieved lot data from the context.
+    Use the structured lot data from the previous task as the primary source of evidence. 
+    Evaluate the coin conservatively based on what is actually visible or explicitly stated.
+
+    Instructions:
+    - Review the lot title, description, condition text, and image-related information from the previous task
+    - Assess the likely coin condition and approximate grade only from available evidence
+    - Take the image_urls list from previous task output as the input for analyze_coin_images tool
+    - Use analyze_coin_images to make the image evaluation
+    - Use web_search only when needed to verify reference details relevant to the claimed coin type or to check whether a suspicious feature is known for that issue
+    - Do not estimate market value in this task
+    - Do not declare authenticity with certainty unless the evidence is exceptionally strong
+    - If image quality or available evidence is insufficient, explicitly say so
+
+    Focus on a cautious, evidence-based appraisal rather than confidence or sales language.
+  expected_output: |
+    A structured appraisal containing:
+
+    - observed_evidence
+    - estimated_condition
+    - estimated_grade_range
+    - possible_damage_or_cleaning_signs
+    - authenticity_risk_assessment
+    - suspicious_or_inconsistent_features
+    - unresolved_uncertainties
+    - final_appraisal_summary
+
+
+sell_history:
+  description: |
+    Collect historical comparable sales for the coin identified in the previous tasks.
+
+    Use the retrieved lot data and appraisal context to understand the target coin's likely:
+    - country
+    - denomination
+    - year
+    - metal
+    - type
+    - approximate grade or condition range
+
+    Instructions:
+    - Use web_search to find historical auction results and completed sales for comparable coins
+    - Prioritize confirmed sold or completed auction listings over active listings or asking prices
+    - Find up to 10 relevant comparable sales
+    - Prefer close matches in coin type, year, denomination, metal, and condition
+    - If an exact match is unavailable, include near matches but clearly mark them as approximate
+    - Do not invent missing sale prices, dates, or currencies
+    - Do not use active listing prices as confirmed sale prices
+    - If the grade or variety differs, explicitly note the mismatch
+    - Focus on factual market evidence, not valuation conclusions
+
+    Return only comparable sales that have a visible or clearly stated realized/sold price.
+    If the evidence is sparse or weak, say so explicitly.
+  expected_output: |
+    A structured list of up to 10 comparable sales.
+
+    Each comparable sale should contain:
+    - title
+    - source
+    - url
+    - sold_price
+    - currency
+    - sale_date
+    - sale_country (optional)
+    - sold_status_confirmed (true/false)
+    - match_quality (high / medium / low)
+    - notes_on_differences
+
+    Also include:
+    - short_search_summary
+    - overall_evidence_quality
+
+
+
+price_normalization:
+  description: |
+    Normalize the historical comparable sale prices using the retrieved lot data and historical sales context.
+
+    Use the lot data from the previous tasks to determine the target currency for normalization.
+    Use the historical sales records from the previous task as the source dataset.
+
+    Instructions:
+    - Use current_time to determine the current date for any date-sensitive normalization logic
+    - Use web_search only when necessary to obtain:
+        - inflation reference information
+        - currency conversion context
+        - precious metal price context for golden coins
+
+    - For each historical comparable sale:
+        1. identify the original sale price and currency
+        2. estimate an inflation-adjusted value where appropriate
+        3. convert the value into the target lot currency
+        4. if the coin is primarily a gold coin, Evaluate the fineness and consider whether current gold price context justifies an additional explanatory adjustment
+
+    - Clearly separate:
+        - original sale price
+        - inflation-adjusted price
+        - converted price
+        - final normalized price
+    - Do not invent missing exchange rates, inflation data, or metal prices
+    - If required data is missing, state the assumption or leave the field unknown
+    - Do not produce the buy recommendation in this task
+    - Focus on price normalization only
+
+    Important rules:
+    - Use the lot currency from the retrieved lot data as the target normalization currency
+    - Preserve uncertainty explicitly
+    - If inflation adjustment is not appropriate or cannot be supported reliably, say so
+    - For gold coins, metal-price context should be treated as supplementary market context, not as a guaranteed pricing rule, but still normalized price for golden coins cannot be lower than pure gold content
+    - Always consider gold finess when calculate to get the pure gold quantity
+  expected_output: |
+    A structured normalized price report containing:
+
+    - target_currency
+    - normalization_date
+    - normalization_notes
+
+    For each comparable sale:
+    - title
+    - url
+    - source
+    - original_price
+    - original_currency
+    - sale_date
+    - inflation_adjusted_price (optional)
+    - converted_price_to_target_currency
+    - final_normalized_price
+    - normalization_assumptions
+    - confidence
+
+    For golden coins also:
+    - metal price delta
+
+    Also include:
+    - short_summary
+    - overall_data_quality
+  
+
+
+final_report:
+  description: |
+    Prepare the final report for the auction lot using all prior task results.
+
+    Use the outputs from:
+    - retrieve_coins_lot
+    - estimation_task
+    - sell_history
+    - price_normalization
+
+    Your job is to produce a final evidence-based summary of the lot and determine whether
+    the current lot price appears financially reasonable relative to the comparable sales and
+    the assessed quality of the coin.
+
+    Instructions:
+    - Use the previous task outputs as the primary evidence base
+    - Do not repeat broad web research unless a critical fact is missing
+    - Combine:
+        - lot metadata
+        - condition and authenticity-risk assessment
+        - historical comparable sales
+        - normalized comparable prices
+    - Explain whether the current lot price appears:
+        - attractive
+        - reasonable
+        - high
+        - difficult to judge due to limited evidence
+    - Clearly distinguish:
+        1. observed facts
+        2. derived analysis
+        3. final conclusion
+    - Explicitly mention the main uncertainty factors
+    - Do not invent missing values or unsupported conclusions
+    - Do not make actual recommendations, just a factual comparison of prices.
+    - Save the final report using save_report
+
+
+    The report should be concise, structured, and decision-oriented.
+  expected_output: |
+    A final structured report containing:
+
+    - lot_summary
+    - coin_identity_summary
+    - condition_and_authenticity_summary
+    - comparable_sales_summary(with urls to lots)
+    - normalized_price_summary
+    - current_lot_price_assessment
+    - key_risks
+    - uncertainty_level
+    - final_conclusion
+
+    The report must also be saved to a file {report_path} using save_report.

@@ -1,0 +1,8 @@
+argparse
+beautifulsoup4
+requests
+pydantic
+ddgs
+crewAI
+dotenv
+openai
