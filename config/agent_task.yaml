@@ -111,21 +111,42 @@ sell_history:
     - type
     - approximate grade or condition range
 
-    Instructions:
-    - Use web_search to find historical auction results and completed sales for comparable coins
-    - Prioritize confirmed sold or completed auction listings over active listings or asking prices
-    - Find up to 10 relevant comparable sales
-    - Prefer close matches in coin type, year, denomination, metal, and condition
-    - If an exact match is unavailable, include near matches but clearly mark them as approximate
-    - Do not invent missing sale prices, dates, or currencies
-    - Do not use active listing prices as confirmed sale prices
-    - If the grade or variety differs, explicitly note the mismatch
-    - Focus on factual market evidence, not valuation conclusions
+    Search parameters provided for this task:
 
-    Return only comparable sales that have a visible or clearly stated realized/sold price.
-    If the evidence is sparse or weak, say so explicitly.
+    max_comparables: {max_comparables}
+    min_comparables: {min_comparables}
+    search_mode: {search_mode}
+    search_year_delta: {search_year_delta}
+    penalize_year_distance: {penalize_year_distance}
+
+    Meaning of parameters:
+
+    search_mode
+      strict → only coins from the same year should be considered.
+      range  → coins within ±fallback_year_delta years may also be considered.
+
+    search_year_delta
+      Defines the allowed year difference, but only when search_mode = range.
+
+    penalize_year_distance
+      If true, exact-year matches should be considered more relevant than nearby years, but only when search_mode = range..
+
+    Instructions:
+
+    - Use web_search to find historical auction results and completed sales for comparable coins.
+    - Prioritize confirmed sold or completed auction listings over active listings or asking prices.
+    - Attempt to find at least {min_comparables} reliable comparable sales if possible.
+    - Do not exceed {max_comparables} results.
+
+    Only include results where the realized or sold price is clearly visible.
+
+    Do not:
+    - invent missing prices, dates, or currencies
+    - treat active listings as confirmed sales
+
+    If reliable comparable sales are limited, explicitly state that the available market evidence is weak.
   expected_output: |
-    A structured list of up to 10 comparable sales.
+    A structured list of up to {max_comparables} comparable sales.
 
     Each comparable sale should contain:
     - title

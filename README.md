@@ -26,9 +26,25 @@ This project explores whether an AI multi-agent architecture can:
 The goal is **decision support**, not automated trading or financial advice.
 
 
-# Example Input
+# Usage Example 
 
-Auction lot URL like: https://violity.com/ua/122101400-dvojnoj-dukat-1595-g-zalcburg
+Run the evaluation by providing an auction lot URL.
+
+Example:
+
+Basic usage in strict year matching mode
+```
+python main.py \
+  --url https://violity.com/ua/119606198-velikobritaniya-krona-1935-serebro-auns-28-28-gramm
+```
+
+Range mode search that allows not strick year matching and providing an allowed search range
+```
+python main.py \
+  --url https://violity.com/... \
+  --range-year-search \
+  --year-delta 2
+```
 
 # Output
 
@@ -41,7 +57,7 @@ Output is a report file
 The system is built as a **multi-agent pipeline**.
 
 
-Agent 1:Lot URL
+Agent 1: Lot URL validator
 
 ↓
 
@@ -65,7 +81,7 @@ Agent 6: Valuation Engine
 
 ↓
 
-Agent 7:Report Preparation
+Agent 7: Report Preparation
 
 
 ## Disclaimer

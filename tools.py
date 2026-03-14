@@ -60,26 +60,44 @@ def analyze_coin_images(image_urls: List[str]) -> str:
         })
 
     resp = client.responses.create(
-        model="gpt-4.1",
+        model="gpt-5.1",
         input=[{"role": "user", "content": content}],
     )
     return resp.output_text
 
-@tool("web_search")
+
+@tool("web_search")   
 def search_web(query: str) -> str:
     """
     Search information in the internet
     Args:
         query: test for search
     """
-    print(f"Searh information: {query}")
-    results = []
     try:
-        with DDGS() as ddgs:
-            for r in ddgs.text(query, max_results=3, backend="duckduckgo"):
-                results.append(f"- {r['title']}: {r['body'][:150]}...")
-        
-        return f"Results for '{query}':\n" + "\n".join(results)
+        with DDGS(timeout=10) as ddgs:
+            results_iter = ddgs.text(
+                query,
+                max_results=10,
+                backend="duckduckgo",
+            )
+
+            results = []
+            for r in results_iter:
+                results.append(r)
+                if len(results) >= 10:
+                    break
+
+            if not results:
+                return "Nothing was found"
+
+            output = "Found results:\n\n"
+
+            for i, r in enumerate(results, 0):
+                output += f"{i}. {r.get('title', '')}\n"
+                output += f"   {r.get('body', '')[:200]}...\n"
+                output += f"   {r.get('href', '')}\n\n"
+
+            return output
     except Exception as e:
         print(f" Search error: {e}")
         return "Search error"

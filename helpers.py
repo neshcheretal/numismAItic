@@ -1,6 +1,6 @@
 import yaml
 from pathlib import Path
-from models import AgentConfig, TaskConfig
+from models import AgentConfig, TaskConfig, SearchConfig
 from typing import Optional, List, Dict
 from crewai import Agent, Task
 
@@ -12,11 +12,18 @@ def load_agents_config(path: str | Path) -> Dict[str, AgentConfig]:
     return {name: AgentConfig(**cfg) for name, cfg in raw.items()}
 
 
-def load_task_config(path: str | Path) -> Dict[str, AgentConfig]:
+def load_task_config(path: str | Path) -> Dict[str, TaskConfig]:
     with open(path, "r", encoding="utf-8") as f:
         raw = yaml.safe_load(f)
 
     return {name: TaskConfig(**cfg) for name, cfg in raw.items()}
+
+
+def load_main_config(path: str | Path) -> SearchConfig:
+    with open(path, "r", encoding="utf-8") as f:
+        raw = yaml.safe_load(f)
+
+    return SearchConfig(**raw["search"])
 
 
 def build_agent(agent_config: AgentConfig, tools: List):

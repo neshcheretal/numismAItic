@@ -15,6 +15,7 @@ from tools import (
 from helpers import (
     load_agents_config,
     load_task_config,
+    load_main_config,
     build_agent,
     build_task,
 )
@@ -39,6 +40,19 @@ def parse_args():
         default="report.md",
         help="Output report filename",
     )
+    parser.add_argument(
+        "--range-year-search",
+        action="store_true",
+        help="Allow searching comparable coins within a year range",
+    )
+
+    parser.add_argument(
+        "--year-delta",
+        type=int,
+        default=0,
+        help="Allowed year difference when --range-year-search is enabled",
+    )
+    
     return parser.parse_args()
 
 
@@ -46,20 +60,19 @@ def main():
     args = parse_args()
     url = args.url
     report_path = args.output
+    use_range_mode = args.range_year_search
+    search_range_delta = args.year_delta
 
     # Load config
+    main_config = load_main_config("config/main.yaml")
     agents_cfg = load_agents_config("config/agents.yaml")
     tasks_cfg = load_task_config("config/agent_task.yaml")
 
     # Сreate agents
     url_validator = build_agent(agents_cfg["url_validator"], tools=[validate_violity_url, search_web])
-
     data_retriever = build_agent(agents_cfg["data_retriever"], tools=[search_web, parse_violity_lot])
-
     appraiser = build_agent(agents_cfg["appraiser"], tools=[search_web, save_report, analyze_coin_images])
-
     history_researcher = build_agent(agents_cfg["history_researcher"], tools=[search_web])
-
     finansists = build_agent(agents_cfg["financial_analyst"], tools=[search_web, get_current_date])
 
     # Task creation
@@ -111,8 +124,20 @@ def main():
     )
 
     # Run the crew
-    crew.kickoff(inputs={"url": url, "report_path": report_path})
+    input_parameteres = {
+        "url": url,
+        "report_path": report_path,
+        "max_comparables": main_config.max_comparables,
+        "min_comparables": main_config.min_comparables,
+        "search_mode":  main_config.primary_mode if not use_range_mode  else main_config.fallback_mode,
+        "search_year_delta": search_range_delta if search_range_delta else main_config.fallback_year_delta,
+        "penalize_year_distance": main_config.penalize_year_distance,
+    }
+    crew.kickoff(inputs=input_parameteres)
 
+
+    use_range_mode = args.range_year_search
+    search_range_delta = args.year_delta
 
 if __name__ == "__main__":
     try:

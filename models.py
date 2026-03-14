@@ -35,6 +35,15 @@ class LotData:
     image_urls: List[str] = field(default_factory=list)
 
 
+class SearchConfig(BaseModel):
+    max_comparables: int
+    min_comparables: int
+    primary_mode: str
+    fallback_mode: str
+    fallback_year_delta: int
+    penalize_year_distance: bool = True
+
+
 class AgentConfig(BaseModel):
     role: str
     goal: str
