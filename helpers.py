@@ -1,29 +1,38 @@
 import yaml
 from pathlib import Path
 from models import AgentConfig, TaskConfig, SearchConfig
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 from crewai import Agent, Task
 
 
-def load_agents_config(path: str | Path) -> Dict[str, AgentConfig]:
-    with open(path, "r", encoding="utf-8") as f:
-        raw = yaml.safe_load(f)
 
+def read_yaml_mapping(path: str | Path) -> dict[str, Any]:
+    with open(path, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+
+    if data is None:
+        return {}
+
+    if not isinstance(data, dict):
+        raise ValueError(f"Expected top-level YAML mapping in {path}")
+
+    return data
+
+def load_agents_config(path: str | Path) -> Dict[str, AgentConfig]:
+    raw = read_yaml_mapping(path)
     return {name: AgentConfig(**cfg) for name, cfg in raw.items()}
 
 
 def load_task_config(path: str | Path) -> Dict[str, TaskConfig]:
-    with open(path, "r", encoding="utf-8") as f:
-        raw = yaml.safe_load(f)
-
+    raw = read_yaml_mapping(path)
     return {name: TaskConfig(**cfg) for name, cfg in raw.items()}
 
 
 def load_main_config(path: str | Path) -> SearchConfig:
-    with open(path, "r", encoding="utf-8") as f:
-        raw = yaml.safe_load(f)
+    raw = read_yaml_mapping(path)
+    return SearchConfig(**raw["sell_history_search"])
 
-    return SearchConfig(**raw["search"])
+
 
 
 def build_agent(agent_config: AgentConfig, tools: List):

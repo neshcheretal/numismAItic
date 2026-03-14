@@ -69,7 +69,7 @@ retrieve_coins_lot:
     - parsing_status = unsupported
 
 
-estimation_task:
+coin_evaluation:
   description: |
     Assess the coin's condition and authenticity risk using the retrieved lot data from the context.
     Use the structured lot data from the previous task as the primary source of evidence. 
@@ -99,7 +99,7 @@ estimation_task:
     - final_appraisal_summary
 
 
-sell_history:
+sell_history_search:
   description: |
     Collect historical comparable sales for the coin identified in the previous tasks.
 

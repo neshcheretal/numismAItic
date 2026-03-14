@@ -9,19 +9,14 @@ class LotData:
     url: str
     auction_house: str
     lot_id: Optional[str] = None
-
     title: Optional[str] = None
     seller: Optional[str] = None
-
     status: str = "unknown"  # active | sold | closed | unknown
-
     added_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
-
     current_price_uah: Optional[float] = None
     final_price_uah: Optional[float] = None
     buy_now_price_uah: Optional[float] = None
-
     metal: Optional[str] = None
     material: Optional[str] = None
     condition_text: Optional[str] = None
@@ -31,7 +26,6 @@ class LotData:
     payment: Optional[str] = None
     shipping: Optional[str] = None
     description: Optional[str] = None
-
     image_urls: List[str] = field(default_factory=list)
 
 

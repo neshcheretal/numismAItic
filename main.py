@@ -84,26 +84,26 @@ def main():
         task_config=tasks_cfg["retrieve_coins_lot"], task_agent=data_retriever, context_list=[validate_auction_task]
     )
 
-    estimation_task = build_task(
-        task_config=tasks_cfg["estimation_task"], task_agent=appraiser, context_list=[retrieve_coins_lot]
+    coin_evaluation = build_task(
+        task_config=tasks_cfg["coin_evaluation"], task_agent=appraiser, context_list=[retrieve_coins_lot]
     )
 
-    sell_history = build_task(
-        task_config=tasks_cfg["sell_history"],
+    sell_history_search = build_task(
+        task_config=tasks_cfg["sell_history_search"],
         task_agent=history_researcher,
-        context_list=[retrieve_coins_lot, estimation_task],
+        context_list=[retrieve_coins_lot, coin_evaluation],
     )
 
     price_normalization = build_task(
         task_config=tasks_cfg["price_normalization"],
         task_agent=finansists,
-        context_list=[retrieve_coins_lot, sell_history],
+        context_list=[retrieve_coins_lot, sell_history_search],
     )
 
     final_report = build_task(
         task_config=tasks_cfg["final_report"],
         task_agent=appraiser,
-        context_list=[retrieve_coins_lot, estimation_task, sell_history, price_normalization],
+        context_list=[retrieve_coins_lot, coin_evaluation, sell_history_search, price_normalization],
     )
 
     # Create the crew
@@ -112,8 +112,8 @@ def main():
         tasks=[
             validate_auction_task,
             retrieve_coins_lot,
-            estimation_task,
-            sell_history,
+            coin_evaluation,
+            sell_history_search,
             price_normalization,
             final_report,
         ],
