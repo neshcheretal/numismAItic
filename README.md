@@ -42,21 +42,26 @@ The system is built as a **multi-agent pipeline**.
 
 
 Agent 1:Lot URL
+
 ↓
 
 Agent 2: Lot Parser
+
 ↓
 
 Agent 3: Coin Identification
 ↓
 
 Agent 4: Historical Comps Search
+
 ↓
 
 Agent 5: Comparable Sales Analysis
+
 ↓
 
 Agent 6: Valuation Engine
+
 ↓
 
 Agent 7:Report Preparation
