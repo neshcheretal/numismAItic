@@ -1,0 +1,8 @@
+---
+sell_history_search:
+  max_comparables: 10
+  min_comparables: 2
+  primary_mode: strict
+  fallback_mode: range
+  fallback_year_delta: 2
+  penalize_year_distance: true
