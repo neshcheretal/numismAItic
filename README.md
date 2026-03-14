@@ -50,6 +50,7 @@ Agent 2: Lot Parser
 ↓
 
 Agent 3: Coin Identification
+
 ↓
 
 Agent 4: Historical Comps Search
