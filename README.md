@@ -21,14 +21,14 @@ This project explores whether an AI multi-agent architecture can:
 2. Identify the coin being sold
 3. Search historical comparable sales
 4. Estimate an average market value based on previous sales
-5. Suggest a maximum rational bid
+5. Estimate a maximum rational bid
 
 The goal is **decision support**, not automated trading or financial advice.
 
 
 # Example Input
 
-Auction lot URL like: https://violity.com/ua/119606198-velikobritaniya-krona-1935-serebro-auns-28-28-gramm
+Auction lot URL like: https://violity.com/ua/122101400-dvojnoj-dukat-1595-g-zalcburg
 
 # Output
 
@@ -41,19 +41,25 @@ Output is a report file
 The system is built as a **multi-agent pipeline**.
 
 
-Lot URL
+Agent 1:Lot URL
 ↓
-Lot Parser
+
+Agent 2: Lot Parser
 ↓
-Agent 1: Coin Identification
+
+Agent 3: Coin Identification
 ↓
-Tool: Historical Comps Search
+
+Agent 4: Historical Comps Search
 ↓
-Agent 2: Comparable Sales Analysis
+
+Agent 5: Comparable Sales Analysis
 ↓
-Valuation Engine
+
+Agent 6: Valuation Engine
 ↓
-Report Preparation
+
+Agent 7:Report Preparation
 
 
 ## Disclaimer

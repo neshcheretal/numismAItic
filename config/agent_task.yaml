@@ -25,8 +25,6 @@ validate_auction:
     - short_reason
 
 
-
-
 retrieve_coins_lot:
   description: |
     Retrieve and parse the auction lot page from: {url}
@@ -69,7 +67,6 @@ retrieve_coins_lot:
     - url
     - auction_platform
     - parsing_status = unsupported
-
 
 
 estimation_task:
@@ -147,7 +144,6 @@ sell_history:
     - overall_evidence_quality
 
 
-
 price_normalization:
   description: |
     Normalize the historical comparable sale prices using the retrieved lot data and historical sales context.
@@ -211,7 +207,6 @@ price_normalization:
     - short_summary
     - overall_data_quality
   
-
 
 final_report:
   description: |
